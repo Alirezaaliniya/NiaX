@@ -1,0 +1,88 @@
+.niax-crypto-prices-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    font-family: 'Tahoma', 'IRANSans', sans-serif;
+    direction: rtl;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.niax-crypto-prices-container.light {
+    background-color: #ffffff;
+    color: #333333;
+}
+
+.niax-crypto-prices-container.dark {
+    background-color: #2d3748;
+    color: #f7fafc;
+}
+
+.niax-crypto-prices-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.niax-crypto-prices-table th, 
+.niax-crypto-prices-table td {
+    padding: 12px 15px;
+    text-align: right;
+}
+
+.niax-crypto-prices-container.light th {
+    background-color: #f7f7f7;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.niax-crypto-prices-container.dark th {
+    background-color: #1a202c;
+    border-bottom: 1px solid #4a5568;
+}
+
+.niax-crypto-prices-container.light td {
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.niax-crypto-prices-container.dark td {
+    border-bottom: 1px solid #4a5568;
+}
+
+.niax-crypto-name {
+    display: flex;
+    align-items: center;
+}
+
+.niax-crypto-name img {
+    width: 24px;
+    height: 24px;
+    margin-left: 10px;
+    border-radius: 50%;
+}
+
+.niax-crypto-price {
+    font-weight: bold;
+}
+
+.price-up {
+    color: #38a169;
+}
+
+.price-down {
+    color: #e53e3e;
+}
+
+.niax-crypto-prices-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    font-size: 12px;
+}
+
+.niax-crypto-prices-container.light .niax-crypto-prices-footer {
+    background-color: #f7f7f7;
+}
+
+.niax-crypto-prices-container.dark .niax-crypto-prices-footer {
+    background-color: #1a202c;
+}

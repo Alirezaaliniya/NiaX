@@ -1,9 +1,16 @@
 <?php
 /**
- * Plugin Name: نمایش قیمت ارزهای دیجیتال
- * Description: نمایش قیمت‌های ارز دیجیتال بصورت دقیقه‌ای با استفاده از شورت‌کد [crypto_prices]
- * Version: 1.0
- * Author: وردپرس‌کار
+ * Plugin Name: NiaX | نیاکس | نمایش جدول تغییرات ارز
+ * Description: نمایش قیمت‌های ارز دیجیتال بصورت دقیقه‌ای با استفاده از شورت‌کد [niax_crypto_prices]
+ * Version: 1.0.1
+ * Author: Alireza Aliniya
+ * Author URI: https://nias.ir
+ * Text Domain: niax-crypto-prices
+ * Domain Path: /languages
+ * Requires at least: 5.0
+ * Requires PHP: 7.2
+ * License: GPL v3 or later
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 // جلوگیری از دسترسی مستقیم
@@ -11,18 +18,18 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-class Crypto_Prices_Plugin {
+class Niax_Crypto_Prices_Plugin {
     
     public function __construct() {
         // ثبت شورت‌کد
-        add_shortcode('crypto_prices', array($this, 'crypto_prices_shortcode'));
+        add_shortcode('niax_crypto_prices', array($this, 'niax_crypto_prices_shortcode'));
         
         // اضافه کردن فایل‌های CSS و JavaScript
         add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
         
         // تنظیم بروزرسانی خودکار با AJAX
-        add_action('wp_ajax_update_crypto_prices', array($this, 'update_crypto_prices'));
-        add_action('wp_ajax_nopriv_update_crypto_prices', array($this, 'update_crypto_prices'));
+        add_action('wp_ajax_niax_update_crypto_prices', array($this, 'niax_update_crypto_prices'));
+        add_action('wp_ajax_nopriv_niax_update_crypto_prices', array($this, 'niax_update_crypto_prices'));
         
         // ایجاد صفحه تنظیمات در بخش مدیریت
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -31,19 +38,19 @@ class Crypto_Prices_Plugin {
     
     // اضافه کردن CSS و JavaScript
     public function enqueue_scripts() {
-        wp_enqueue_style('crypto-prices-style', plugin_dir_url(__FILE__) . 'assets/css/crypto-prices.css', array(), '1.0.0');
-        wp_enqueue_script('crypto-prices-script', plugin_dir_url(__FILE__) . 'assets/js/crypto-prices.js', array('jquery'), '1.0.0', true);
+        wp_enqueue_style('niax-crypto-prices-style', plugin_dir_url(__FILE__) . 'assets/css/niax-crypto-prices.css', array(), '1.0.0');
+        wp_enqueue_script('niax-crypto-prices-script', plugin_dir_url(__FILE__) . 'assets/js/niax-crypto-prices.js', array('jquery'), '1.0.0', true);
         
         // ارسال متغیرهای مورد نیاز به JavaScript
-        wp_localize_script('crypto-prices-script', 'crypto_prices_ajax', array(
+        wp_localize_script('niax-crypto-prices-script', 'niax_crypto_prices_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('crypto_prices_nonce'),
-            'refresh_interval' => get_option('crypto_refresh_interval', 60) * 1000 // تبدیل به میلی‌ثانیه
+            'nonce' => wp_create_nonce('niax_crypto_prices_nonce'),
+            'refresh_interval' => get_option('niax_crypto_refresh_interval', 60) * 1000 // تبدیل به میلی‌ثانیه
         ));
     }
     
     // تابع شورت‌کد
-    public function crypto_prices_shortcode($atts) {
+    public function niax_crypto_prices_shortcode($atts) {
         // دریافت تنظیمات از پارامترهای شورت‌کد
         $atts = shortcode_atts(array(
             'coins' => 'bitcoin,ethereum,tether,binancecoin,solana',
@@ -60,13 +67,13 @@ class Crypto_Prices_Plugin {
         // شروع محتوا
         ob_start();
         
-        echo '<div class="crypto-prices-container ' . esc_attr($atts['theme']) . '">';
-        echo '<table class="crypto-prices-table">';
+        echo '<div class="niax-crypto-prices-container ' . esc_attr($atts['theme']) . '">';
+        echo '<table class="niax-crypto-prices-table">';
         echo '<thead>';
         echo '<tr>';
-        echo '<th>' . esc_html__('ارز', 'crypto-prices') . '</th>';
-        echo '<th>' . esc_html__('قیمت', 'crypto-prices') . '</th>';
-        echo '<th>' . esc_html__('تغییر (۲۴ ساعت)', 'crypto-prices') . '</th>';
+        echo '<th>' . esc_html__('ارز', 'niax-crypto-prices') . '</th>';
+        echo '<th>' . esc_html__('قیمت', 'niax-crypto-prices') . '</th>';
+        echo '<th>' . esc_html__('تغییر (۲۴ ساعت)', 'niax-crypto-prices') . '</th>';
         echo '</tr>';
         echo '</thead>';
         echo '<tbody>';
@@ -77,20 +84,20 @@ class Crypto_Prices_Plugin {
                 $arrow = ($coin['price_change_24h'] >= 0) ? '↑' : '↓';
                 
                 echo '<tr>';
-                echo '<td class="crypto-name"><img src="' . esc_url($coin['image']) . '" alt="' . esc_attr($coin['name']) . '"> ' . esc_html($coin['name']) . '</td>';
-                echo '<td class="crypto-price">' . esc_html(number_format($coin['current_price'], 2)) . ' ' . strtoupper($atts['currency']) . '</td>';
-                echo '<td class="crypto-change ' . $price_class . '">' . $arrow . ' ' . esc_html(abs(number_format($coin['price_change_percentage_24h'], 2))) . '%</td>';
+                echo '<td class="niax-crypto-name"><img src="' . esc_url($coin['image']) . '" alt="' . esc_attr($coin['name']) . '"> ' . esc_html($coin['name']) . '</td>';
+                echo '<td class="niax-crypto-price">' . esc_html(number_format($coin['current_price'], 2)) . ' ' . strtoupper($atts['currency']) . '</td>';
+                echo '<td class="niax-crypto-change ' . $price_class . '">' . $arrow . ' ' . esc_html(abs(number_format($coin['price_change_percentage_24h'], 2))) . '%</td>';
                 echo '</tr>';
             }
         } else {
-            echo '<tr><td colspan="3">' . esc_html__('خطا در دریافت قیمت‌ها. لطفاً بعداً تلاش کنید.', 'crypto-prices') . '</td></tr>';
+            echo '<tr><td colspan="3">' . esc_html__('خطا در دریافت قیمت‌ها. لطفاً بعداً تلاش کنید.', 'niax-crypto-prices') . '</td></tr>';
         }
         
         echo '</tbody>';
         echo '</table>';
-        echo '<div class="crypto-prices-footer">';
-        echo '<span class="crypto-prices-update-time">' . esc_html__('آخرین بروزرسانی: ', 'crypto-prices') . '<span id="crypto-update-time">' . date_i18n('H:i:s') . '</span></span>';
-        echo '<span class="crypto-prices-powered-by">' . esc_html__('منبع: CoinGecko', 'crypto-prices') . '</span>';
+        echo '<div class="niax-crypto-prices-footer">';
+        echo '<span class="niax-crypto-prices-update-time">' . esc_html__('آخرین بروزرسانی: ', 'niax-crypto-prices') . '<span id="niax-crypto-update-time">' . date_i18n('H:i:s') . '</span></span>';
+        echo '<span class="niax-crypto-prices-powered-by">' . esc_html__('منبع: CoinGecko', 'niax-crypto-prices') . '</span>';
         echo '</div>';
         echo '</div>';
         
@@ -100,7 +107,7 @@ class Crypto_Prices_Plugin {
     // دریافت قیمت‌ها از API
     public function get_crypto_prices($coins, $currency = 'usd') {
         // استفاده از کش وردپرس برای بهینه‌سازی درخواست‌ها
-        $cache_key = 'crypto_prices_data_' . md5(implode(',', $coins) . $currency);
+        $cache_key = 'niax_crypto_prices_data_' . md5(implode(',', $coins) . $currency);
         $cached = get_transient($cache_key);
         
         if ($cached !== false) {
@@ -133,15 +140,15 @@ class Crypto_Prices_Plugin {
         }
         
         // ذخیره در کش وردپرس (برای 1 دقیقه)
-        $cache_time = get_option('crypto_cache_time', 1) * MINUTE_IN_SECONDS;
+        $cache_time = get_option('niax_crypto_cache_time', 1) * MINUTE_IN_SECONDS;
         set_transient($cache_key, $data, $cache_time);
         
         return $data;
     }
     
     // تابع AJAX برای بروزرسانی قیمت‌ها
-    public function update_crypto_prices() {
-        check_ajax_referer('crypto_prices_nonce', 'nonce');
+    public function niax_update_crypto_prices() {
+        check_ajax_referer('niax_crypto_prices_nonce', 'nonce');
         
         $coins = isset($_POST['coins']) ? sanitize_text_field($_POST['coins']) : 'bitcoin,ethereum,tether,binancecoin,solana';
         $currency = isset($_POST['currency']) ? sanitize_text_field($_POST['currency']) : 'usd';
@@ -162,55 +169,55 @@ class Crypto_Prices_Plugin {
             'تنظیمات قیمت ارزهای دیجیتال',
             'قیمت ارزهای دیجیتال',
             'manage_options',
-            'crypto-prices-settings',
+            'niax-crypto-prices-settings',
             array($this, 'settings_page')
         );
     }
     
     // ثبت تنظیمات
     public function register_settings() {
-        register_setting('crypto_prices_settings', 'crypto_default_coins');
-        register_setting('crypto_prices_settings', 'crypto_default_currency');
-        register_setting('crypto_prices_settings', 'crypto_refresh_interval');
-        register_setting('crypto_prices_settings', 'crypto_cache_time');
+        register_setting('niax_crypto_prices_settings', 'niax_crypto_default_coins');
+        register_setting('niax_crypto_prices_settings', 'niax_crypto_default_currency');
+        register_setting('niax_crypto_prices_settings', 'niax_crypto_refresh_interval');
+        register_setting('niax_crypto_prices_settings', 'niax_crypto_cache_time');
         
         add_settings_section(
-            'crypto_prices_settings_section',
+            'niax_crypto_prices_settings_section',
             'تنظیمات نمایش قیمت‌های ارز دیجیتال',
             array($this, 'settings_section_callback'),
-            'crypto-prices-settings'
+            'niax-crypto-prices-settings'
         );
         
         add_settings_field(
-            'crypto_default_coins',
+            'niax_crypto_default_coins',
             'ارزهای پیش‌فرض',
             array($this, 'default_coins_callback'),
-            'crypto-prices-settings',
-            'crypto_prices_settings_section'
+            'niax-crypto-prices-settings',
+            'niax_crypto_prices_settings_section'
         );
         
         add_settings_field(
-            'crypto_default_currency',
+            'niax_crypto_default_currency',
             'واحد پول پیش‌فرض',
             array($this, 'default_currency_callback'),
-            'crypto-prices-settings',
-            'crypto_prices_settings_section'
+            'niax-crypto-prices-settings',
+            'niax_crypto_prices_settings_section'
         );
         
         add_settings_field(
-            'crypto_refresh_interval',
+            'niax_crypto_refresh_interval',
             'فاصله بروزرسانی (ثانیه)',
             array($this, 'refresh_interval_callback'),
-            'crypto-prices-settings',
-            'crypto_prices_settings_section'
+            'niax-crypto-prices-settings',
+            'niax_crypto_prices_settings_section'
         );
         
         add_settings_field(
-            'crypto_cache_time',
+            'niax_crypto_cache_time',
             'زمان کش (دقیقه)',
             array($this, 'cache_time_callback'),
-            'crypto-prices-settings',
-            'crypto_prices_settings_section'
+            'niax-crypto-prices-settings',
+            'niax_crypto_prices_settings_section'
         );
     }
     
@@ -221,15 +228,22 @@ class Crypto_Prices_Plugin {
     
     // فیلدهای تنظیمات
     public function default_coins_callback() {
-        $coins = get_option('crypto_default_coins', 'bitcoin,ethereum,tether,binancecoin,solana');
-        echo '<input type="text" name="crypto_default_coins" value="' . esc_attr($coins) . '" class="regular-text">';
+        $coins = get_option('niax_crypto_default_coins', 'bitcoin,ethereum,tether,binancecoin,solana');
+        echo '<input type="text" name="niax_crypto_default_coins" value="' . esc_attr($coins) . '" class="regular-text">';
         echo '<p class="description">نام‌های ارزها را با کاما از هم جدا کنید (مثال: bitcoin,ethereum,tether)</p>';
     }
     
     public function default_currency_callback() {
-        $currency = get_option('crypto_default_currency', 'usd');
-        echo '<select name="crypto_default_currency">';
-        $currencies = array('usd' => 'دلار آمریکا (USD)', 'eur' => 'یورو (EUR)', 'gbp' => 'پوند (GBP)', 'jpy' => 'ین ژاپن (JPY)', 'irr' => 'ریال ایران (IRR)');
+        $currency = get_option('niax_crypto_default_currency', 'usd');
+        echo '<select name="niax_crypto_default_currency">';
+        $currencies = array(
+            'usd' => 'دلار آمریکا (USD)', 
+            'eur' => 'یورو (EUR)', 
+            'gbp' => 'پوند (GBP)', 
+            'jpy' => 'ین ژاپن (JPY)', 
+            'irr' => 'ریال ایران (IRR)',
+            'irt' => 'تومان ایران (IRT)'
+        );
         foreach ($currencies as $code => $name) {
             echo '<option value="' . esc_attr($code) . '" ' . selected($currency, $code, false) . '>' . esc_html($name) . '</option>';
         }
@@ -237,14 +251,14 @@ class Crypto_Prices_Plugin {
     }
     
     public function refresh_interval_callback() {
-        $interval = get_option('crypto_refresh_interval', 60);
-        echo '<input type="number" name="crypto_refresh_interval" value="' . esc_attr($interval) . '" min="10" max="600" step="1">';
+        $interval = get_option('niax_crypto_refresh_interval', 60);
+        echo '<input type="number" name="niax_crypto_refresh_interval" value="' . esc_attr($interval) . '" min="10" max="600" step="1">';
         echo '<p class="description">فاصله زمانی بروزرسانی خودکار قیمت‌ها بر حسب ثانیه (حداقل 10 ثانیه)</p>';
     }
     
     public function cache_time_callback() {
-        $cache_time = get_option('crypto_cache_time', 1);
-        echo '<input type="number" name="crypto_cache_time" value="' . esc_attr($cache_time) . '" min="1" max="60" step="1">';
+        $cache_time = get_option('niax_crypto_cache_time', 1);
+        echo '<input type="number" name="niax_crypto_cache_time" value="' . esc_attr($cache_time) . '" min="1" max="60" step="1">';
         echo '<p class="description">مدت زمان ذخیره نتایج در کش (به دقیقه)</p>';
     }
     
@@ -255,16 +269,16 @@ class Crypto_Prices_Plugin {
             <h1><?php echo esc_html(get_admin_page_title()); ?></h1>
             <form action="options.php" method="post">
                 <?php
-                settings_fields('crypto_prices_settings');
-                do_settings_sections('crypto-prices-settings');
+                settings_fields('niax_crypto_prices_settings');
+                do_settings_sections('niax-crypto-prices-settings');
                 submit_button('ذخیره تنظیمات');
                 ?>
             </form>
             
-            <div class="crypto-shortcode-help">
+            <div class="niax-crypto-shortcode-help">
                 <h2>راهنمای استفاده از شورت‌کد</h2>
                 <p>برای نمایش قیمت ارزهای دیجیتال در صفحات سایت خود، از شورت‌کد زیر استفاده کنید:</p>
-                <code>[crypto_prices]</code>
+                <code>[niax_crypto_prices]</code>
                 
                 <h3>پارامترهای اختیاری:</h3>
                 <ul>
@@ -274,7 +288,7 @@ class Crypto_Prices_Plugin {
                 </ul>
                 
                 <h3>مثال:</h3>
-                <code>[crypto_prices coins="bitcoin,ethereum,cardano" currency="eur" theme="dark"]</code>
+                <code>[niax_crypto_prices coins="bitcoin,ethereum,cardano" currency="irt" theme="dark"]</code>
             </div>
         </div>
         <?php
@@ -282,10 +296,10 @@ class Crypto_Prices_Plugin {
 }
 
 // شروع افزونه
-function run_crypto_prices_plugin() {
-    new Crypto_Prices_Plugin();
+function run_niax_crypto_prices_plugin() {
+    new Niax_Crypto_Prices_Plugin();
 }
-add_action('plugins_loaded', 'run_crypto_prices_plugin');
+add_action('plugins_loaded', 'run_niax_crypto_prices_plugin');
 
 // ایجاد فایل‌های مورد نیاز هنگام فعال‌سازی افزونه
 function crypto_prices_plugin_activation() {
